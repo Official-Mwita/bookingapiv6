@@ -66,6 +66,39 @@ if (app.Environment.IsDevelopment())
         ops.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 }
+else
+{
+    app.UseCors(ops =>
+    {
+        //string[] origins = { 
+        //    "http://192.168.1.200:3000", 
+        //    "http://localhost:3000",
+        //    "http://192.168.1.200:3000/", 
+        //    "http://localhost:3000/",
+        //    "http://192.168.1.6:3000",
+        //    "http://192.168.1.6:3000/login",
+        //    "http://192.168.1.5:3000/*",
+        //    "https://192.168.1.5:3000/*",
+        //    "http://192.168.1.200:3000/*",
+        //};
+
+        string[] origins = {
+                        "https://i-business-ouigcdw7x-moryno.vercel.app",
+                        "https://i-business-ouigcdw7x-moryno.vercel.app/",
+                        "https://ibusiness-a6vkaxgd2-moryno.vercel.app/",
+                        "https://ibusiness-a6vkaxgd2-moryno.vercel.app/",
+                        "http://localhost:3000",
+                        "http://192.168.1.200:3000/",
+                        "https://react-test-official-mwita.vercel.app/",
+                        "https://react-test-eta-eight.vercel.app",
+                        "https://react-test-eta-eight.vercel.app/"
+                    };
+
+
+
+        ops.WithOrigins(origins).AllowCredentials().WithMethods("POST", "GET").WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
+    });
+}
 
 
 
@@ -77,7 +110,7 @@ app.UseAuthorization();
 //This middleware ensures that, a user is authenticated before atleast going further into the system
 app.Use(async (Context, next) =>
 {
-    if (!Context.User.Identity.IsAuthenticated)
+    if (!Context.User.Identity?.IsAuthenticated??false)
     {
         Context.Response.StatusCode = 401;
         await Context.Response.WriteAsync("Unauthorized. Try logging in");
