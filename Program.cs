@@ -86,6 +86,8 @@ else
                         "https://i-business-ouigcdw7x-moryno.vercel.app",
                         "https://i-business-ouigcdw7x-moryno.vercel.app/",
                         "https://ibusiness-a6vkaxgd2-moryno.vercel.app/",
+                        "https://i-business-2niabkx7d-moryno.vercel.app",
+                        "https://i-business-2niabkx7d-moryno.vercel.app/",
                         "https://ibusiness-a6vkaxgd2-moryno.vercel.app/",
                         "http://localhost:3000",
                         "http://192.168.1.200:3000/",
