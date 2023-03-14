@@ -230,7 +230,7 @@ namespace BookingApi.Controllers
 
         // POST api/<BookingController>
         [HttpPost]
-        [Route("CreateBooking")]
+        [Route("Create")]
         public async Task<IActionResult> Create([FromBody] UserBooking uBooking)
         {
             if(ModelState.IsValid) //Process data
