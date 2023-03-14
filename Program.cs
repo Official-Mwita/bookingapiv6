@@ -83,7 +83,7 @@ else
 
 
 
-        ops.WithOrigins(origins).AllowCredentials().WithMethods("POST", "GET").WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
+        ops.WithOrigins(origins).AllowCredentials().WithMethods("POST", "GET", "PUT").WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
     });
 }
 
