@@ -276,7 +276,7 @@ namespace BookingApi.Controllers
 
                         //Return resulst
                         resBody.Add("Success", true);
-                        resBody.Add("Booking", uBooking.Booking);
+                        resBody.Add("Booking", uBooking);
 
                         return new OkObjectResult(resBody);
 
