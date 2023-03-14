@@ -52,10 +52,10 @@ namespace BookingApi.Models
         [DataType(DataType.PhoneNumber)]
         public string Telephone { get; set; } = string.Empty;
         public string OriginCountry { get; set; } = string.Empty;
-        public string EmployerName { get; set; } = string.Empty;
-        public string Experience { get; set; } 
-        public string Position { get; set; } = string.Empty;
-        public string DisabilityStatus { get; set; } = string.Empty;
+        public string? EmployerName { get; set; } = string.Empty;
+        public string? Experience { get; set; } 
+        public string? Position { get; set; } = string.Empty;
+        public string? DisabilityStatus { get; set; } = string.Empty;
 
         public string? IdNumber { get; set; }
 
