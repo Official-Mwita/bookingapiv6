@@ -265,6 +265,11 @@ namespace BookingApi.Controllers
 
                                 SqlDataReader reader = await command.ExecuteReaderAsync();
 
+                                reader.Read();
+                                uBooking.Booking.BookingId = (int)reader.GetDecimal(0);
+                                uBooking.Booking.UserId = userId;
+
+
                             }
 
                         }
