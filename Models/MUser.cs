@@ -53,11 +53,11 @@ namespace BookingApi.Models
         public string Telephone { get; set; } = string.Empty;
         public string OriginCountry { get; set; } = string.Empty;
         public string? EmployerName { get; set; } = string.Empty;
-        public string? Experience { get; set; } 
+        public string? Experience { get; set; } = string.Empty;
         public string? Position { get; set; } = string.Empty;
         public string? DisabilityStatus { get; set; } = string.Empty;
 
-        public string? IdNumber { get; set; }
+        public string? IdNumber { get; set; } = string.Empty;
 
         //Generate password hash
 
