@@ -342,6 +342,15 @@ namespace BookingApi.Controllers
                                 command.Parameters.AddWithValue("paymentMode", SqlDbType.NVarChar).Value = uBooking.Booking.PaymentMode;
                                 command.Parameters.AddWithValue("additionalRequirements", SqlDbType.NVarChar).Value = uBooking.Booking.AdditionalRequirements;
                                 command.Parameters.AddWithValue("userId ", SqlDbType.Int).Value = userId;
+                                command.Parameters.AddWithValue("disabilityStatus", SqlDbType.NVarChar).Value = uBooking.User.DisabilityStatus;
+                                command.Parameters.AddWithValue("email", SqlDbType.NVarChar).Value = uBooking.User.Email;
+                                command.Parameters.AddWithValue("employerName", SqlDbType.NVarChar).Value = uBooking.User.EmployerName;
+                                command.Parameters.AddWithValue("experience", SqlDbType.Int).Value = uBooking.User.Experience;
+                                command.Parameters.AddWithValue("fullName", SqlDbType.NVarChar).Value = uBooking.User.FullName;
+                                command.Parameters.AddWithValue("idNumber", SqlDbType.NVarChar).Value = uBooking.User.IdNumber;
+                                command.Parameters.AddWithValue("physicalAddress", SqlDbType.NVarChar).Value = uBooking.User.PhysicalAddress;
+                                command.Parameters.AddWithValue("position", SqlDbType.NVarChar).Value = uBooking.User.Position;
+                                command.Parameters.AddWithValue("telephone", SqlDbType.NVarChar).Value = uBooking.User.Telephone;
 
                                 SqlDataReader reader = await command.ExecuteReaderAsync();
 
@@ -391,7 +400,7 @@ namespace BookingApi.Controllers
         // put api/<BookingController>
         [HttpPut]
         [Route("UpdateBooking")]
-        public async Task<IActionResult> Update([FromBody] MBooking booking)
+        public async Task<IActionResult> Update([FromBody] UserBooking uBooking)
         {
             if (ModelState.IsValid) //Process data
             {
@@ -413,19 +422,28 @@ namespace BookingApi.Controllers
                             using (SqlCommand command = new SqlCommand("spInsertUpdateBooking", _connection))
                             {
                                 command.CommandType = CommandType.StoredProcedure;
-                                command.Parameters.AddWithValue("bookingId", SqlDbType.Int).Value = booking.BookingId;
-                                command.Parameters.AddWithValue("externalSchemeAdmin", SqlDbType.NVarChar).Value = booking.ExternalSchemeAdmin;
-                                command.Parameters.AddWithValue("bookingType", SqlDbType.NVarChar).Value = booking.BookingType;
-                                command.Parameters.AddWithValue("retirementSchemeName", SqlDbType.NVarChar).Value = booking.RetirementSchemeName;
-                                command.Parameters.AddWithValue("schemePosition", SqlDbType.NVarChar).Value = booking.SchemePosition;
-                                command.Parameters.AddWithValue("trainingVenue", SqlDbType.NVarChar).Value = booking.TrainingVenue;
-                                command.Parameters.AddWithValue("paymentMode", SqlDbType.NVarChar).Value = booking.PaymentMode;
-                                command.Parameters.AddWithValue("additionalRequirements", SqlDbType.NVarChar).Value = booking.AdditionalRequirements;
+                                command.Parameters.AddWithValue("bookingId", SqlDbType.Int).Value = uBooking.Booking.BookingId;
+                                command.Parameters.AddWithValue("externalSchemeAdmin", SqlDbType.NVarChar).Value = uBooking.Booking.ExternalSchemeAdmin;
+                                command.Parameters.AddWithValue("bookingType", SqlDbType.NVarChar).Value = uBooking.Booking.BookingType;
+                                command.Parameters.AddWithValue("retirementSchemeName", SqlDbType.NVarChar).Value = uBooking.Booking.RetirementSchemeName;
+                                command.Parameters.AddWithValue("schemePosition", SqlDbType.NVarChar).Value = uBooking.Booking.SchemePosition;
+                                command.Parameters.AddWithValue("trainingVenue", SqlDbType.NVarChar).Value = uBooking.Booking.TrainingVenue;
+                                command.Parameters.AddWithValue("paymentMode", SqlDbType.NVarChar).Value = uBooking.Booking.PaymentMode;
+                                command.Parameters.AddWithValue("additionalRequirements", SqlDbType.NVarChar).Value = uBooking.Booking.AdditionalRequirements;
                                 command.Parameters.AddWithValue("userId ", SqlDbType.Int).Value = userId;
+                                command.Parameters.AddWithValue("disabilityStatus", SqlDbType.NVarChar).Value = uBooking.User.DisabilityStatus;
+                                command.Parameters.AddWithValue("email", SqlDbType.NVarChar).Value = uBooking.User.Email;
+                                command.Parameters.AddWithValue("employerName", SqlDbType.NVarChar).Value = uBooking.User.EmployerName;
+                                command.Parameters.AddWithValue("experience", SqlDbType.Int).Value = uBooking.User.Experience;
+                                command.Parameters.AddWithValue("fullName", SqlDbType.NVarChar).Value = uBooking.User.FullName;
+                                command.Parameters.AddWithValue("idNumber", SqlDbType.NVarChar).Value = uBooking.User.IdNumber;
+                                command.Parameters.AddWithValue("physicalAddress", SqlDbType.NVarChar).Value = uBooking.User.PhysicalAddress;
+                                command.Parameters.AddWithValue("position", SqlDbType.NVarChar).Value = uBooking.User.Position;
+                                command.Parameters.AddWithValue("telephone", SqlDbType.NVarChar).Value = uBooking.User.Telephone;
 
                                 SqlDataReader reader = await command.ExecuteReaderAsync();
 
-                                booking.UserId = userId;
+                                uBooking.Booking.UserId = userId;
 
                             }
 
@@ -433,7 +451,7 @@ namespace BookingApi.Controllers
 
                         //Return resulst
                         resBody.Add("status", true);
-                        resBody.Add("Booking", customBooking(booking));
+                        resBody.Add("Booking", customBooking(uBooking.Booking));
 
                         return new OkObjectResult(resBody);
 
