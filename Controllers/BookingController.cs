@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,7 +31,7 @@ namespace BookingApi.Controllers
             try
             {
 
-                List<MBooking> bookings = new List<MBooking>();
+                List<Hashtable> bookings = new List<Hashtable>();
                 JsonResult result = new JsonResult(bookings);
 
                 //Set defaults for start and end indeces if not given
@@ -56,7 +54,7 @@ namespace BookingApi.Controllers
                         SqlDataReader reader = await command.ExecuteReaderAsync();
                         while (reader.Read())
                         {
-                            bookings.Add(new MBooking
+                            bookings.Add(customBooking(new MBooking
                             {
                                 BookingId = reader.GetInt64(0),
                                 ExternalSchemeAdmin = reader.GetString(1),
@@ -69,7 +67,7 @@ namespace BookingApi.Controllers
                                 AdditionalRequirements = reader.GetString(8),
                                 UserId = reader.GetInt64(9)
 
-                            });
+                            }));
 
                         }
 
@@ -87,15 +85,90 @@ namespace BookingApi.Controllers
         }
 
         [HttpGet]
+        public async Task<JsonResult> Get([FromQuery]int? bookingID)
+        {
+            bookingID = bookingID ?? 0;
+            if(bookingID == 0)
+            {
+                return await UserBooking(int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1"));
+            }
+            else
+            {
+                Hashtable sample = new Hashtable();
+                sample.Add("sample", "sample 1");
+                sample.Add("sample2", "sample 1");
+                sample.Add("sample3", "sample 1");
+                //Select a booking by ID
+                return new JsonResult(sample);
+            }
+            
+
+
+            //try
+            //{
+
+            //    List<MBooking> bookings = new List<MBooking>();
+            //    JsonResult result = new JsonResult(bookings);
+
+            //    //If not admin or owner of the record return empty list
+            //    if (!User.HasClaim(MUser.ADMIN_TYPE, "admin")
+            //        && (int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "0") != userID)
+            //        )
+            //        return result;
+
+
+
+            //    //end = end > 1000 ? 100 : end;
+
+            //    //Connect to database then read booking records
+            //    _connection.OpenAsync().Wait();
+
+            //    using (SqlCommand command = new SqlCommand("spSelectUserBookings", _connection))
+            //    {
+            //        command.CommandType = CommandType.StoredProcedure;
+            //        command.Parameters.AddWithValue("id", SqlDbType.Int).Value = userID;
+
+            //        SqlDataReader reader = await command.ExecuteReaderAsync();
+            //        while (reader.Read())
+            //        {
+            //            bookings.Add(new MBooking
+            //            {
+            //                BookingId = reader.GetInt64(0),
+            //                ExternalSchemeAdmin = reader.GetString(1),
+            //                CourseDate = reader.GetDateTime(2).Date.ToString(),
+            //                BookingType = reader.GetString(3),
+            //                RetirementSchemeName = reader.GetString(4),
+            //                SchemePosition = reader.GetString(5),
+            //                TrainingVenue = reader.GetString(6),
+            //                PaymentMode = reader.GetString(7),
+            //                AdditionalRequirements = reader.GetString(8),
+            //                UserId = reader.GetInt64(9)
+
+            //            });
+
+            //        }
+
+            //    }
+
+            //    return result;
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new JsonResult(ex.Message);
+            //}
+        }
+
+        [HttpGet("user")]
         //Get a record per user
-        public async Task<JsonResult> Get(int? userID)
+        public async Task<JsonResult> UserBooking(int? userID)
         {
            
 
             try
             {
 
-                List<MBooking> bookings = new List<MBooking>();
+                List<Hashtable> bookings = new List<Hashtable>();
                 JsonResult result = new JsonResult(bookings);
 
                 userID = userID ?? (User.HasClaim(MUser.ADMIN_TYPE, "admin") ? 0 : int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value??"0"));
@@ -121,7 +194,7 @@ namespace BookingApi.Controllers
                     SqlDataReader reader = await command.ExecuteReaderAsync();
                     while (reader.Read())
                     {
-                        bookings.Add(new MBooking
+                        bookings.Add(customBooking(new MBooking
                         {
                             BookingId = reader.GetInt64(0),
                             ExternalSchemeAdmin = reader.GetString(1),
@@ -134,7 +207,7 @@ namespace BookingApi.Controllers
                             AdditionalRequirements = reader.GetString(8),
                             UserId = reader.GetInt64(9)
 
-                        });
+                        }));
 
                     }
 
@@ -155,7 +228,7 @@ namespace BookingApi.Controllers
         {
             try
             {
-                List<MBooking> bookings = new List<MBooking>();
+                List<Hashtable> bookings = new List<Hashtable>();
                 JsonResult result = new JsonResult(bookings);
 
                 int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
@@ -198,7 +271,7 @@ namespace BookingApi.Controllers
                     while (reader.Read())
                     {
                       
-                        bookings.Add(new MBooking
+                        bookings.Add(customBooking(new MBooking
                         {
                             BookingId = reader.GetInt64(0),
                             ExternalSchemeAdmin = reader.GetString(1),
@@ -211,7 +284,7 @@ namespace BookingApi.Controllers
                             AdditionalRequirements = reader.GetString(8),
                             UserId = reader.GetInt64(9)
 
-                        });
+                        }));
 
 
                     }
@@ -373,6 +446,23 @@ namespace BookingApi.Controllers
                 //Error occured
                 return new BadRequestResult();
             }
+        }
+
+        //Used to create a custom booking to suit current design
+        //That is returning specific data as specificed in the front-end
+        private Hashtable customBooking(MBooking mBooking)
+        {
+            Hashtable customBooking = new Hashtable
+            {
+                { "bookingId", mBooking.BookingId },
+                { "externalSchemeAdmin", mBooking.ExternalSchemeAdmin },
+                { "bookingType", mBooking.BookingType },
+                { "retirementSchemeName", mBooking.RetirementSchemeName },
+                { "schemePosition", mBooking.SchemePosition },
+                { "trainingVenue", mBooking.TrainingVenue }
+            };
+
+            return customBooking;
         }
     }
 
