@@ -356,7 +356,14 @@ namespace BookingApi.Controllers
 
                         //Return resulst
                         resBody.Add("Success", true);
-                        resBody.Add("Booking", uBooking);
+
+                        //Create a custom booking to match specification
+                        Hashtable customUBooking = new Hashtable
+                        {
+                            { "user", uBooking.User },
+                            { "booking", customBooking(uBooking.Booking) }
+                        };
+                        resBody.Add("Booking", customUBooking);
 
                         return new OkObjectResult(resBody);
 
@@ -426,7 +433,7 @@ namespace BookingApi.Controllers
 
                         //Return resulst
                         resBody.Add("status", true);
-                        resBody.Add("Booking", booking);
+                        resBody.Add("Booking", customBooking(booking));
 
                         return new OkObjectResult(resBody);
 
