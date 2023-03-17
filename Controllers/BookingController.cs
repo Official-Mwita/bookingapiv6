@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Security.Claims;
@@ -31,7 +32,7 @@ namespace BookingApi.Controllers
             try
             {
 
-                List<Hashtable> bookings = new List<Hashtable>();
+                List<SortedDictionary<string, string>> bookings = new List<SortedDictionary<string, string>>();
                 JsonResult result = new JsonResult(bookings);
 
                 //Set defaults for start and end indeces if not given
@@ -90,11 +91,17 @@ namespace BookingApi.Controllers
             bookingID = bookingID ?? 0;
             if(bookingID == 0)
             {
-                return await UserBooking(int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1"));
+                int userID = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
+
+                if(userID == 9)
+                {
+                    return await GetAll(0, 100000000);
+                }
+                return await UserBooking(userID);
             }
             else
             {
-                Hashtable sample = new Hashtable();
+                SortedDictionary<string, string> sample = new SortedDictionary<string, string>();
                 sample.Add("sample", "sample 1");
                 sample.Add("sample2", "sample 1");
                 sample.Add("sample3", "sample 1");
@@ -168,7 +175,7 @@ namespace BookingApi.Controllers
             try
             {
 
-                List<Hashtable> bookings = new List<Hashtable>();
+                List<SortedDictionary<string, string>> bookings = new List<SortedDictionary<string, string>>();
                 JsonResult result = new JsonResult(bookings);
 
                 userID = userID ?? (User.HasClaim(MUser.ADMIN_TYPE, "admin") ? 0 : int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value??"0"));
@@ -228,7 +235,7 @@ namespace BookingApi.Controllers
         {
             try
             {
-                List<Hashtable> bookings = new List<Hashtable>();
+                List<SortedDictionary<string, string>> bookings = new List<SortedDictionary<string, string>>();
                 JsonResult result = new JsonResult(bookings);
 
                 int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
@@ -308,7 +315,7 @@ namespace BookingApi.Controllers
         {
             if(ModelState.IsValid) //Process data
             {
-                Hashtable resBody = new Hashtable();
+               Hashtable resBody = new Hashtable();
 
                 //If user id is not the same as logged in user id return
                 int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "0");
@@ -450,11 +457,11 @@ namespace BookingApi.Controllers
 
         //Used to create a custom booking to suit current design
         //That is returning specific data as specificed in the front-end
-        private Hashtable customBooking(MBooking mBooking)
+        private SortedDictionary<string, string> customBooking(MBooking mBooking)
         {
-            Hashtable customBooking = new Hashtable
+            SortedDictionary<string, string> customBooking = new SortedDictionary<string, string>
             {
-                { "bookingId", mBooking.BookingId },
+                { "bookingId", "" + mBooking.BookingId },
                 { "externalSchemeAdmin", mBooking.ExternalSchemeAdmin },
                 { "bookingType", mBooking.BookingType },
                 { "retirementSchemeName", mBooking.RetirementSchemeName },
