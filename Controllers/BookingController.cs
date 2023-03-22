@@ -89,10 +89,10 @@ namespace BookingApi.Controllers
         public async Task<JsonResult> Get([FromQuery]int? bookingID)
         {
             bookingID = bookingID ?? 0;
-            if(bookingID == 0)
+            int userID = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
+            if (bookingID == 0)
             {
-                int userID = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
-
+                
                 if(userID == 9)
                 {
                     return await GetAll(0, 100000000);
@@ -101,12 +101,76 @@ namespace BookingApi.Controllers
             }
             else
             {
-                SortedDictionary<string, string> sample = new SortedDictionary<string, string>();
-                sample.Add("sample", "sample 1");
-                sample.Add("sample2", "sample 1");
-                sample.Add("sample3", "sample 1");
+                MBooking? booking = null;
+                MUser? user = null;
+
                 //Select a booking by ID
-                return new JsonResult(sample);
+                try
+                {
+                    using (_connection)
+                    {
+                        await _connection.OpenAsync();
+
+                        using (SqlCommand command = new SqlCommand("spSelectBookingbyID", _connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("bookingID", SqlDbType.Int).Value = bookingID;
+                            command.Parameters.AddWithValue("userID", SqlDbType.Int).Value = userID;
+
+                            using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                            {
+                                while (reader.Read())
+                                {
+                                    booking = new MBooking
+                                    {
+                                        BookingId = reader.GetInt64(0),
+                                        ExternalSchemeAdmin = reader.GetString(1),
+                                        CourseDate = reader.GetDateTime(2).Date.ToString(),
+                                        BookingType = reader.GetString(3),
+                                        RetirementSchemeName = reader.GetString(4),
+                                        SchemePosition = reader.GetString(5),
+                                        TrainingVenue = reader.GetString(6),
+                                        PaymentMode = reader.GetString(7),
+                                        AdditionalRequirements = reader.GetString(8),
+                                        UserId = reader.GetInt64(9)
+
+                                    };
+
+                                    user = new MUser
+                                    {
+                                        UserID = userID,
+                                        DisabilityStatus = reader.GetString(10),
+                                        Email = reader.GetString(11),
+                                        EmployerName = reader.GetString(12),
+                                        Experience = reader.GetInt32(13),
+                                        FullName = reader.GetString(14),
+                                        IdNumber = reader.GetString(15),
+                                        PhysicalAddress = reader.GetString(16),
+                                        Position = reader.GetString(17),
+                                        Telephone = reader.GetString(18)
+
+                                    };                               
+
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                catch
+                {
+                    //Error occured with the request. Set status code to bad request
+                    HttpContext.Response.StatusCode = 409;
+                }
+
+                Hashtable userbooking = new Hashtable
+                {
+                    { "booking", booking},
+                    { "user", user }
+                };
+                
+                return new JsonResult(userbooking);
             }
             
 
