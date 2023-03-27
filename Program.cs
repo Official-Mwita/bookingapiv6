@@ -81,9 +81,8 @@ else
                         "http://localhost:3000",
                         "http://localhost:3000/",
                         "http://192.168.1.200:3000/",
+                        "http://localhost:3000/dashboard"
                     };
-
-
 
         ops.WithOrigins(origins).AllowCredentials().WithMethods("POST", "GET", "PUT").WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
     });
