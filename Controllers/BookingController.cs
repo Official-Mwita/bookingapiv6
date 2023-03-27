@@ -93,7 +93,7 @@ namespace BookingApi.Controllers
             if (bookingID == 0)
             {
                 
-                if(userID == 21)
+                if(userID == 21 || userID == 23)
                 {
                     return await GetAll(0, 100000000);
                 }
