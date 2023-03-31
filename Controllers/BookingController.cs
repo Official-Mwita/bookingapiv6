@@ -19,6 +19,7 @@ namespace BookingApi.Controllers
         private readonly SqlConnection _connection;
         public BookingController(IConfiguration config) 
         {
+
             _connection = new SqlConnection(config.GetConnectionString("connString"));
         }
         // GET: api/<BookingController>
@@ -93,7 +94,7 @@ namespace BookingApi.Controllers
             if (bookingID == 0)
             {
                 
-                if(userID == 21 || userID == 23)
+                if(userID == 21 || userID == 23 || userID == 19)
                 {
                     return await GetAll(0, 100000000);
                 }
@@ -384,7 +385,7 @@ namespace BookingApi.Controllers
                 //If user id is not the same as logged in user id return
                 int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "0");
 
-                if(true)//save booking else return unauthorized
+                //if(User.Identity.IsAuthenticated)//save booking else return unauthorized
                 {
                     //Engulf in a exception
                     try
@@ -459,6 +460,41 @@ namespace BookingApi.Controllers
                 //Error occured
                 return new BadRequestResult();
             }
+        }
+
+        [HttpDelete()]
+        public async Task<IActionResult> Delete(int bookingID)
+        {
+            //Get user ID
+            int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "0");
+
+            try
+            {
+                using (_connection)
+                {
+                    //Connect to database then read booking records
+                    _connection.OpenAsync().Wait();
+
+                    using (SqlCommand command = new SqlCommand("spDeleteBooking", _connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("bookingId", SqlDbType.Int).Value = bookingID;
+                        command.Parameters.AddWithValue("userId", SqlDbType.NVarChar).Value = userId;
+
+                        SqlDataReader reader = await command.ExecuteReaderAsync();
+                    }
+                }
+
+                //Return deleted record
+                var res = new { message = $"Booking with ID {bookingID} will deleted", status = true};
+
+                return new OkObjectResult(res);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+
         }
 
         // put api/<BookingController>

@@ -1,11 +1,15 @@
+using Azure.Core;
 using BookingApi;
+using BookingApi.Commons;
 using BookingApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDataProtection();
 
 ////Add microsoft authenticatio
 //builder.Services.AddAuthentication()
@@ -57,6 +61,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -92,7 +97,6 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 //Redirect back if user is not authenticated
 //This middleware ensures that, a user is authenticated before atleast going further into the system
