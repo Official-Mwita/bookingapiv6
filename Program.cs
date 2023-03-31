@@ -89,7 +89,7 @@ else
                         "http://localhost:3000/dashboard"
                     };
 
-        ops.WithOrigins(origins).AllowCredentials().WithMethods("POST", "GET", "PUT").WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
+        ops.WithOrigins(origins).AllowCredentials().AllowAnyMethod().WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
     });
 }
 
