@@ -1,11 +1,15 @@
+using Azure.Core;
 using BookingApi;
+using BookingApi.Commons;
 using BookingApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDataProtection();
 
 ////Add microsoft authenticatio
 //builder.Services.AddAuthentication()
@@ -25,6 +29,36 @@ builder.Services.AddAuthentication(options =>
     
 }).AddJwtBearer(ops =>
 {
+    //Add on message received event that decrpyt, then replaces authorization token with plain text one
+    ops.Events = new JwtBearerEvents()
+    {
+        //Fired before a token can be verified
+        OnMessageReceived = context =>
+         {
+             try 
+             {
+                 var authorization = context.HttpContext.Request.Headers.Authorization;
+                 string decryptedtoken;
+
+                 if (authorization.Count > 0)
+                 {
+                     decryptedtoken = authorization[0]?.Substring("Bearer ".Length).Trim() ?? "";
+                     decryptedtoken = new AesEncryption(builder.Configuration).Decrypt(decryptedtoken);
+
+                     //Write back the token httpcontext header
+                     context.HttpContext.Request.Headers.Authorization = "Bearer " + decryptedtoken;
+                 }
+
+             }
+             catch
+             {
+                 //Nothing to process. The rest is handled by default
+             }
+             
+             return Task.CompletedTask;
+         }
+
+    };
     ops.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -57,6 +91,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -84,7 +119,7 @@ else
                         "http://localhost:3000/dashboard"
                     };
 
-        ops.WithOrigins(origins).AllowCredentials().WithMethods("POST", "GET", "PUT").WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
+        ops.WithOrigins(origins).AllowCredentials().AllowAnyMethod().WithHeaders("Cookie", "Content-Type", "X-Custom-Header", "set-Cookie", "Authorization");
     });
 }
 
@@ -92,7 +127,6 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 //Redirect back if user is not authenticated
 //This middleware ensures that, a user is authenticated before atleast going further into the system
