@@ -29,6 +29,36 @@ builder.Services.AddAuthentication(options =>
     
 }).AddJwtBearer(ops =>
 {
+    //Add on message received event that decrpyt, then replaces authorization token with plain text one
+    ops.Events = new JwtBearerEvents()
+    {
+        //Fired before a token can be verified
+        OnMessageReceived = context =>
+         {
+             try 
+             {
+                 var authorization = context.HttpContext.Request.Headers.Authorization;
+                 string decryptedtoken;
+
+                 if (authorization.Count > 0)
+                 {
+                     decryptedtoken = authorization[0]?.Substring("Bearer ".Length).Trim() ?? "";
+                     decryptedtoken = new AesEncryption(builder.Configuration).Decrypt(decryptedtoken);
+
+                     //Write back the token httpcontext header
+                     context.HttpContext.Request.Headers.Authorization = "Bearer " + decryptedtoken;
+                 }
+
+             }
+             catch
+             {
+                 //Nothing to process. The rest is handled by default
+             }
+             
+             return Task.CompletedTask;
+         }
+
+    };
     ops.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,

@@ -24,10 +24,7 @@ namespace BookingApi.Controllers
         }
         // GET: api/<BookingController>
         //Get all bookings. Only admin
-        [HttpGet]
-        [Authorize(Policy = "AdminUser")]
-        [Route("/api/Booking/GetAll")]
-        public async Task<JsonResult> GetAll(int? start, int? end)
+        private async Task<JsonResult> GetAll(int? start, int? end)
         {
 
             try
@@ -91,13 +88,16 @@ namespace BookingApi.Controllers
         {
             bookingID = bookingID ?? 0;
             int userID = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
+
+            
             if (bookingID == 0)
             {
-                
-                if(userID == 21 || userID == 23 || userID == 19)
+                //Get all bookings if user is admin i.E user id 21, 23, 19
+                if (userID == 21 || userID == 23 || userID == 19)
                 {
                     return await GetAll(0, 100000000);
                 }
+                //otherwise return this user's booking
                 return await UserBooking(userID);
             }
             else
@@ -243,17 +243,7 @@ namespace BookingApi.Controllers
                 List<SortedDictionary<string, string>> bookings = new List<SortedDictionary<string, string>>();
                 JsonResult result = new JsonResult(bookings);
 
-                userID = userID ?? (User.HasClaim(MUser.ADMIN_TYPE, "admin") ? 0 : int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value??"0"));
-
-                //If not admin or owner of the record return empty list
-                if (!User.HasClaim(MUser.ADMIN_TYPE, "admin")
-                    && (int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value??"0") != userID)
-                    )
-                    return result;
-
-
-               
-                //end = end > 1000 ? 100 : end;
+                int claimID = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
 
                 //Connect to database then read booking records
                 _connection.OpenAsync().Wait();
@@ -261,7 +251,7 @@ namespace BookingApi.Controllers
                 using (SqlCommand command = new SqlCommand("spSelectUserBookings", _connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("id", SqlDbType.Int).Value = userID;
+                    command.Parameters.AddWithValue("id", SqlDbType.Int).Value = claimID;
 
                     SqlDataReader reader = await command.ExecuteReaderAsync();
                     while (reader.Read())
@@ -305,7 +295,7 @@ namespace BookingApi.Controllers
 
                 int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
 
-                if (User.HasClaim(MUser.ADMIN_TYPE, "admin"))
+                if (userId == 21 || userId == 23 || userId == 19)
                     userId = 0;
 
 
@@ -462,7 +452,7 @@ namespace BookingApi.Controllers
             }
         }
 
-        [HttpDelete()]
+        [HttpDelete("/api/booking")]
         public async Task<IActionResult> Delete(int bookingID)
         {
             //Get user ID
