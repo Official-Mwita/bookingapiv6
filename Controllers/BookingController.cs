@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Security.Claims;
@@ -92,8 +91,8 @@ namespace BookingApi.Controllers
             
             if (bookingID == 0)
             {
-                //Get all bookings if user is admin i.E user id 21, 23, 19
-                if (userID == 21 || userID == 23 || userID == 19)
+                //Get all bookings if user is admin i.E user id 21, 23, 26
+                if (userID == 21 || userID == 23 || userID == 26)
                 {
                     return await GetAll(0, 100000000);
                 }
@@ -176,66 +175,13 @@ namespace BookingApi.Controllers
             
 
 
-            //try
-            //{
-
-            //    List<MBooking> bookings = new List<MBooking>();
-            //    JsonResult result = new JsonResult(bookings);
-
-            //    //If not admin or owner of the record return empty list
-            //    if (!User.HasClaim(MUser.ADMIN_TYPE, "admin")
-            //        && (int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "0") != userID)
-            //        )
-            //        return result;
-
-
-
-            //    //end = end > 1000 ? 100 : end;
-
-            //    //Connect to database then read booking records
-            //    _connection.OpenAsync().Wait();
-
-            //    using (SqlCommand command = new SqlCommand("spSelectUserBookings", _connection))
-            //    {
-            //        command.CommandType = CommandType.StoredProcedure;
-            //        command.Parameters.AddWithValue("id", SqlDbType.Int).Value = userID;
-
-            //        SqlDataReader reader = await command.ExecuteReaderAsync();
-            //        while (reader.Read())
-            //        {
-            //            bookings.Add(new MBooking
-            //            {
-            //                BookingId = reader.GetInt64(0),
-            //                ExternalSchemeAdmin = reader.GetString(1),
-            //                CourseDate = reader.GetDateTime(2).Date.ToString(),
-            //                BookingType = reader.GetString(3),
-            //                RetirementSchemeName = reader.GetString(4),
-            //                SchemePosition = reader.GetString(5),
-            //                TrainingVenue = reader.GetString(6),
-            //                PaymentMode = reader.GetString(7),
-            //                AdditionalRequirements = reader.GetString(8),
-            //                UserId = reader.GetInt64(9)
-
-            //            });
-
-            //        }
-
-            //    }
-
-            //    return result;
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    return new JsonResult(ex.Message);
-            //}
+         
         }
 
         [HttpGet("user")]
         //Get a record per user
         public async Task<JsonResult> UserBooking(int? userID)
         {
-           
 
             try
             {
@@ -294,9 +240,6 @@ namespace BookingApi.Controllers
                 JsonResult result = new JsonResult(bookings);
 
                 int userId = int.Parse(User.FindFirst(ClaimTypes.PrimarySid)?.Value ?? "-1");
-
-                if (userId == 21 || userId == 23 || userId == 19)
-                    userId = 0;
 
 
                 DateOnly start, end, _default;
